@@ -2,7 +2,12 @@ apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 
 android {
+
+    compileSdkVersion sdk.compileSdk
+
     defaultConfig {
+        minSdkVersion sdk.minSdk
+        targetSdkVersion sdk.targetSdk
         consumerProguardFiles "consumer-rules.pro"
     }
 
