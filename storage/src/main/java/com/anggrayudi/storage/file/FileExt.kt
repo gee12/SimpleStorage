@@ -148,11 +148,17 @@ fun File.inKitkatSdCard() =
  * @see Environment.isExternalStorageManager
  */
 @Suppress("DEPRECATION")
-fun File.isExternalStorageManager(context: Context) = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && Environment.isExternalStorageManager(this)
-        || (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q || Build.VERSION.SDK_INT == Build.VERSION_CODES.Q && Environment.isExternalStorageLegacy()) &&
-        (path.startsWith(SimpleStorage.externalStoragePath) || Build.VERSION.SDK_INT < 21 && path.startsWith(StorageId.KITKAT_SDCARD))
-        && SimpleStorage.hasStoragePermission(context)
-        || context.writableDirs.any { path.startsWith(it.path) }
+fun File.isExternalStorageManager(context: Context): Boolean {
+    val isApi30orAbove = Build.VERSION.SDK_INT > Build.VERSION_CODES.Q && Environment.isExternalStorageManager(this)
+    val isApi29OrLower = Build.VERSION.SDK_INT < Build.VERSION_CODES.Q
+            || Build.VERSION.SDK_INT == Build.VERSION_CODES.Q && Environment.isExternalStorageLegacy()
+    val isInExternalStoragePath = path.startsWith(SimpleStorage.externalStoragePath)
+            || Build.VERSION.SDK_INT < 21 && path.trimStart('/').startsWith(StorageId.KITKAT_SDCARD)
+    val isInWritableDirs = context.writableDirs.any { path.startsWith(it.path) }
+    return isApi30orAbove
+            || isApi29OrLower && isInExternalStoragePath && SimpleStorage.hasStoragePermission(context)
+            || isInWritableDirs
+}
 
 /**
  * These directories do not require storage permissions. They are always writable with full disk access.
